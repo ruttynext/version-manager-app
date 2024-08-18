@@ -1,4 +1,4 @@
-interface StepInfo {
+export interface StepInfo {
     label: string;
     description: string;
   }
@@ -9,11 +9,27 @@ interface StepInfo {
     recentFixes: string[];
   }
   
-  interface ConfigJson {
-    selectedBranch: string;
-    vdd: Vdd;
-  }
+
   interface Credentials {
     username: string;
     password: string;
   }
+
+
+  
+export interface Configuration {
+
+  selectedBranch: string;
+  
+  copyToTarget: {
+    targetDirectory: string;
+  };
+  vdd: {
+    versionNumber: string;
+    releaseDate: string;
+    recentFixes: string[];
+  };
+}
+
+
+

@@ -1,19 +1,26 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { Select, MenuItem } from '@mui/material';
 
 interface BranchSelectionProps {
   branches: string[], 
   selectedBranch: string; 
   setSelectedBranch: (branch: string) => void;
+  updateValidity: (isValid: boolean) => void;
+
 }
 
-const BranchSelection: React.FC<BranchSelectionProps> = ({ selectedBranch, setSelectedBranch, branches }) => {
+
+const BranchSelection: React.FC<BranchSelectionProps> = ({branches, selectedBranch, setSelectedBranch,  updateValidity }) => {
  
+  useEffect(() => {
+    updateValidity(!!selectedBranch);
+  }, [selectedBranch, updateValidity]);
+
   return (
     <div>
       <Select
         value={selectedBranch}
-        onChange={(e) => setSelectedBranch(e.target.value)}
+        onChange={(e) => setSelectedBranch(e.target.value as string)}
         fullWidth
       >
         {branches.map((branch) => (

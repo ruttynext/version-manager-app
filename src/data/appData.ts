@@ -1,3 +1,4 @@
+import { Configuration, StepInfo } from "../types/types";
 
 export const steps: StepInfo[] = [
   { label: 'Branch Selection', description: 'Select the branch you want to release.' },
@@ -6,3 +7,17 @@ export const steps: StepInfo[] = [
   { label: 'VDD', description: 'Fill out the version description document.' }
 ];
 
+// Simulated configuration data (as an example)
+export const configData: Configuration = {
+ 
+  selectedBranch: '',
+  
+  copyToTarget: {
+    targetDirectory: '',
+  },
+  vdd: {
+    versionNumber: '',
+    releaseDate: '',
+    recentFixes: [],
+  },
+};

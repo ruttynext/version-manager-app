@@ -1,40 +1,45 @@
 import React, { useState } from 'react';
 import { Box, Button, CircularProgress, TextField, Typography } from '@mui/material';
+import { copyFilesToTarget } from '../services/service';
+import { Configuration } from '../types/types';
 
-const CopyToTargetDirectory: React.FC = () => {
+interface CopyToTargetDirectoryProps {
+  selectedBranch: string
+  onUpdate: (key: keyof Configuration, value: any) => void;
+  updateValidity: (isValid: boolean) => void;
+
+}
+const CopyToTargetDirectory: React.FC<CopyToTargetDirectoryProps> = ({ selectedBranch, onUpdate, updateValidity }) => {
   const [targetDirectory, setTargetDirectory] = useState<string>(''); // שמירת שם תיקית היעד
-  const [loading, setLoading] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>('');
+  const [copyResult, setCopyResult] = useState<string | null>(null); // תוצאה של ההעתקה
+  const [loading, setLoading] = useState<boolean>(false); // מצב טעינה
+  const [error, setError] = useState<string | null>(null); // מצב שגיאה
 
-  /**
-   * This function simulates copying files to the target directory.
-   */
+
   const handleCopy = async () => {
-    if (!targetDirectory) {
-      setMessage('Please specify a target directory.');
-      return;
-    }
-  
     setLoading(true);
-    setMessage(''); // Clear any previous message
-  
+    setError(null);
+    setCopyResult(null);
+
+    const updatedConfig = {
+        targetDirectory: targetDirectory,   
+    };
+
+    // קריאה לפונקציה שמעדכנת את ה-config
+    onUpdate("copyToTarget", updatedConfig);
+
     try {
-      // Simulate a delay for the copy process
-      await new Promise<void>((resolve, reject) => {
-        setTimeout(() => {
-          // Simulate a successful copy operation
-          resolve();
-        }, 500); // Simulate operation duration
-      });
-  
-      // After the simulated operation
-      setMessage(`Files successfully copied to "${targetDirectory}"`);
-    } catch (error) {
-      setMessage('Failed to copy files.');
+      const result = await copyFilesToTarget(selectedBranch, targetDirectory); // קריאה לפונקציה עם הסניף שנבחר
+      setCopyResult(result);
+      updateValidity(true); 
+    } catch (err: any) {
+      setError(err.message || 'Copy failed');
+      updateValidity(false); 
     } finally {
       setLoading(false);
     }
   };
+
   
   return (
     <div>
@@ -54,10 +59,16 @@ const CopyToTargetDirectory: React.FC = () => {
       >
         {loading ? <CircularProgress size={24} /> : 'Copy to Target Directory'}
       </Button>
+      
       <Box mt={2}>
-        {message && (
+        {copyResult && (
           <Typography variant="body1" color="success.main">
-            {message}
+            {copyResult}
+          </Typography>
+        )}
+        {error && (
+          <Typography variant="body1" color="error.main">
+            {error}
           </Typography>
         )}
       </Box>

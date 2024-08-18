@@ -4,33 +4,76 @@ import BranchSelection from './BranchSelection';
 import BuildStep from './BuildStep';
 import CopyToTargetDirectory from './CopyToTargetDirectory';
 import VersionDescriptionDocument from './VersionDescriptionDocumen';
-import initialConfig from '../config.json';
 import Completion from './Completion';
-import { steps } from '../data/appData';
+import { configData, steps } from '../data/appData';
+import { fetchBranches, readConfiguration, saveConfiguration } from '../services/service';
+import { Configuration } from '../types/types';
 
 
 const VersionManager = () => {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [selectedBranch, setSelectedBranch] = useState<string>('');
   const [branches, setBranches] = useState<string[]>([]);
-  const [config, setConfig] = useState<ConfigJson>(initialConfig);
+  const [config, setConfig] = useState<Configuration>(configData);
   const [completed, setCompleted] = useState<boolean>(false);
   const [message, setMessage] = useState<string>(''); 
+  const [stepValidity, setStepValidity] = useState<boolean[]>(steps.map(() => false));
 
-    // Simulate fetching branches from an API
     useEffect(() => {
-      const fetchedBranches: string[] = ['master', 'development', 'feature/new-ui', 'bugfix/issue-123'];
-      setBranches(fetchedBranches);
-
+     
+      const getBranches = async () => {
+        try {
+          const branchesList = await fetchBranches();
+          setBranches(branchesList);
+        } catch (err) {
+          setMessage('Failed to fetch branches');
+        } finally {
+         // setLoading(false);
+        }
+      };
+  
+      getBranches();
     }, []);
 
-  const handleNext = (newData: Partial<ConfigJson>) => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    
+    useEffect(() => {
 
-    if (activeStep === steps.length - 1) {
-      setCompleted(true);
-    }
-  };
+      const fetchConfigAndUpdate = async () => {
+        try {
+          const result = await readConfiguration(selectedBranch);
+          setConfig(result);
+    
+          if (selectedBranch) {
+            handleUpdateConfig("selectedBranch", selectedBranch);
+          } // סוגרים את ה-if
+        } catch (error) {
+          console.error('Error fetching config:', error);
+        }
+      };
+    
+      fetchConfigAndUpdate(); 
+    }, [selectedBranch]); 
+    
+    const handleUpdateStepValidity = (isValid: boolean) => {
+      setStepValidity(prev => {
+        const newValidity = [...prev];
+        newValidity[activeStep] = isValid;
+        return newValidity;
+      });
+    };
+
+    const handleNext = (newData: Partial<Configuration>) => {
+      if (stepValidity[activeStep]) {
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  
+        if (activeStep === steps.length - 1) {
+          setCompleted(true);
+        }
+      } else {
+        setMessage('Please fill in all required fields before proceeding.');
+      }
+    };
+
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
@@ -40,21 +83,27 @@ const VersionManager = () => {
     setActiveStep(step);
   };
 
-  const handleUpdateConfig = (updatedData: Partial<ConfigJson>) => {
-    setConfig((prevConfig) => ({ ...prevConfig, ...updatedData }));
+
+  const handleUpdateConfig = (key: keyof Configuration, value: any) => {
+
+    const configObj = {
+      ...config,
+      [key]: value
+    };
+    setConfig((prevConfig) => ({ ...prevConfig, ...configObj }));
+    console.log("handleUpdateConfig");
   };
+ 
 
   const handleFinish = async () => {
+   
     if (selectedBranch) {
-      const success = true; //await saveConfigToFile(config, selectedBranch);
-  
-      if (success) {
+      try {
+        await saveConfiguration(selectedBranch, config);
         setCompleted(true);
-      } else {
+      } catch (error) {
         setMessage('Failed to save configuration.');
       }
-    } else {
-      setMessage('No branch selected.');
     }
   };
   
@@ -62,13 +111,13 @@ const VersionManager = () => {
   const getStepContent = (stepIndex: number) => {
     switch (stepIndex) {
       case 0:
-        return <BranchSelection branches ={branches} selectedBranch={selectedBranch} setSelectedBranch={setSelectedBranch} />;
+        return <BranchSelection branches ={branches} selectedBranch={selectedBranch} setSelectedBranch={setSelectedBranch} updateValidity={handleUpdateStepValidity}/>;
       case 1:
-        return <BuildStep selectedBranch={selectedBranch}/>;
+        return <BuildStep selectedBranch={selectedBranch} updateValidity={handleUpdateStepValidity}/>;
       case 2:
-        return <CopyToTargetDirectory />;
+        return <CopyToTargetDirectory selectedBranch={selectedBranch} onUpdate={handleUpdateConfig} updateValidity={handleUpdateStepValidity}/>;
       case 3:
-        return <VersionDescriptionDocument config={config} onUpdate={handleUpdateConfig} />;
+        return <VersionDescriptionDocument config={config} onUpdate={handleUpdateConfig} updateValidity={handleUpdateStepValidity}/>;
       default:
         return 'Unknown step';
     }
@@ -105,7 +154,8 @@ const VersionManager = () => {
                 Back
               </Button>
               {activeStep < steps.length - 1 && (
-                <Button variant="contained" color="primary" onClick={() => handleNext({})} style={{ marginLeft: '20px' }}>
+                <Button variant="contained" color="primary" onClick={() => handleNext({})} disabled={!stepValidity[activeStep]}
+                style={{ marginLeft: '20px' }}>
                   Next
                 </Button>
               )}
@@ -115,6 +165,7 @@ const VersionManager = () => {
                   color="primary"
                   onClick={handleFinish}
                   style={{ marginLeft: '20px' }}
+                  disabled={!stepValidity[steps.length - 1]}
                 >
                   Finish
                 </Button>

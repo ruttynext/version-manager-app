@@ -1,26 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { TextField, Grid, Box } from '@mui/material';
+import { Configuration } from '../types/types';
 
 
 interface VersionDescriptionDocumentProps {
-  config: ConfigJson
-  onUpdate: (updatedConfig: { vdd: Vdd }) => void;
+  config: Configuration
+  onUpdate: (key: keyof Configuration, value: any) => void;
+  updateValidity: (isValid: boolean) => void;
 }
 
-const VersionDescriptionDocument: React.FC<VersionDescriptionDocumentProps> = ({ config, onUpdate }) => {
+
+const VersionDescriptionDocument: React.FC<VersionDescriptionDocumentProps> = ({ config, onUpdate, updateValidity }) => {
   const [versionNumber, setVersionNumber] = useState<string>(config.vdd.versionNumber);
   const [releaseDate, setReleaseDate] = useState<string>(config.vdd.releaseDate);
   const [recentFixes, setRecentFixes] = useState<string>(config.vdd.recentFixes.join('\n'));
 
   useEffect(() => {
-    onUpdate({
-      vdd: {
-        versionNumber,
-        releaseDate,
-        recentFixes: recentFixes.split('\n') // המרת שורות לרשימה
+  
+      const vddObj = {   
+          versionNumber,
+          releaseDate,
+          recentFixes: recentFixes.split('\n') // המרת שורות לרשימה      
       }
-    });
-  }, [versionNumber, releaseDate, recentFixes, onUpdate]);
+
+    onUpdate("vdd", vddObj);
+    
+    const isValid = 
+      versionNumber.trim() !== '' && 
+      releaseDate.trim() !== '' && 
+      recentFixes.trim() !== '';
+    
+    updateValidity(isValid);
+
+  }, [versionNumber, releaseDate, recentFixes]);
+
 
   return (
     <Box>

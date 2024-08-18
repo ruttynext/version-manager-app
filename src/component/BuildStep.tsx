@@ -1,28 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
-
+import { simulateBuild } from '../services/service';
 
 interface BuildStepProps {
   selectedBranch: string;
+  updateValidity: (isValid: boolean) => void;
 }
 
-const BuildStep: React.FC<BuildStepProps> = ({ selectedBranch }) => {
-
+const BuildStep: React.FC<BuildStepProps> = ({ selectedBranch, updateValidity }) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>('');
+  const [buildResult, setBuildResult] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-    /**
-   * This function simulates the build process for the selected branch.
-   * In a real application, you would replace this simulation with
-     a call to an external function or service that performs the actual build.
-   */
-  const handleBuild = () => {
+  const handleBuild = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setMessage(`Build process for branch "${selectedBranch}" completed!`);
+    setError(null);
+    setBuildResult(null);
 
-    }, 2000); 
+    try {
+      const result = await simulateBuild(selectedBranch);
+      setBuildResult(result);
+      updateValidity(true); // הבנייה הצליחה
+    } catch (err: any) {
+      setError(err.message || 'Build failed');
+      updateValidity(false); // הבנייה נכשלה
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,10 +39,16 @@ const BuildStep: React.FC<BuildStepProps> = ({ selectedBranch }) => {
       >
         {loading ? <CircularProgress size={24} /> : 'Build'}
       </Button>
-      <Box mt={2}> {/* מוסיף רווח מעל להודעה */}
-        {message && (
+
+      <Box mt={2}>
+        {buildResult && (
           <Typography variant="body1" color="success.main">
-            {message}
+            {buildResult}
+          </Typography>
+        )}
+        {error && (
+          <Typography variant="body1" color="error.main">
+            {error}
           </Typography>
         )}
       </Box>
