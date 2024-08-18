@@ -40,6 +40,8 @@ import { Configuration } from "../types/types";
     });
   };
   
+  //Copies files from the specified branch to the target directory.
+  // This function simulates the process of copying files by using a timeout.
   export const copyFilesToTarget = async (branch: string, targetDirectory: string): Promise<string> => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -57,7 +59,7 @@ import { Configuration } from "../types/types";
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         if (branches.includes(branch)) {
-          // Simulate saving the config (in a real app, you'd write to a file or DB)
+          // Simulate saving the config (in a real app, you'd write to a file)
           resolve(`Configuration for branch ${branch} saved successfully`);
         } else {
           reject(new Error('Save failed: Branch not found'));

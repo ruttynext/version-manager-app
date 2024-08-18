@@ -23,6 +23,7 @@ const VersionManager = () => {
      
       const getBranches = async () => {
         try {
+          // Fetch branches from the server
           const branchesList = await fetchBranches();
           setBranches(branchesList);
         } catch (err) {
@@ -38,6 +39,7 @@ const VersionManager = () => {
     
     useEffect(() => {
 
+      // Fetch configuration based on the selected branch
       const fetchConfigAndUpdate = async () => {
         try {
           const result = await readConfiguration(selectedBranch);
@@ -45,7 +47,7 @@ const VersionManager = () => {
     
           if (selectedBranch) {
             handleUpdateConfig("selectedBranch", selectedBranch);
-          } // סוגרים את ה-if
+          } 
         } catch (error) {
           console.error('Error fetching config:', error);
         }
@@ -54,6 +56,7 @@ const VersionManager = () => {
       fetchConfigAndUpdate(); 
     }, [selectedBranch]); 
     
+    // Update validity of the current step
     const handleUpdateStepValidity = (isValid: boolean) => {
       setStepValidity(prev => {
         const newValidity = [...prev];
@@ -62,6 +65,7 @@ const VersionManager = () => {
       });
     };
 
+    // Handle moving to the next step
     const handleNext = (newData: Partial<Configuration>) => {
       if (stepValidity[activeStep]) {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -74,16 +78,17 @@ const VersionManager = () => {
       }
     };
 
-
+  // Handle moving to the previous step
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
+  // Handle navigating to a specific step
   const handleStep = (step: number) => () => {
     setActiveStep(step);
   };
 
-
+  // Update configuration object with new data
   const handleUpdateConfig = (key: keyof Configuration, value: any) => {
 
     const configObj = {
@@ -94,7 +99,7 @@ const VersionManager = () => {
     console.log("handleUpdateConfig");
   };
  
-
+  // Handle completing the process and saving configuration
   const handleFinish = async () => {
    
     if (selectedBranch) {
@@ -107,7 +112,7 @@ const VersionManager = () => {
     }
   };
   
-
+  // Render content for the current step
   const getStepContent = (stepIndex: number) => {
     switch (stepIndex) {
       case 0:

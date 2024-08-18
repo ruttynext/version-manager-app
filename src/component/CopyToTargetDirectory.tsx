@@ -6,14 +6,14 @@ import { Configuration } from '../types/types';
 interface CopyToTargetDirectoryProps {
   selectedBranch: string
   onUpdate: (key: keyof Configuration, value: any) => void;
-  updateValidity: (isValid: boolean) => void;
+  updateValidity: (isValid: boolean) => void;// Callback to update the validity of the step
 
 }
 const CopyToTargetDirectory: React.FC<CopyToTargetDirectoryProps> = ({ selectedBranch, onUpdate, updateValidity }) => {
-  const [targetDirectory, setTargetDirectory] = useState<string>(''); // שמירת שם תיקית היעד
-  const [copyResult, setCopyResult] = useState<string | null>(null); // תוצאה של ההעתקה
-  const [loading, setLoading] = useState<boolean>(false); // מצב טעינה
-  const [error, setError] = useState<string | null>(null); // מצב שגיאה
+  const [targetDirectory, setTargetDirectory] = useState<string>(''); 
+  const [copyResult, setCopyResult] = useState<string | null>(null); 
+  const [loading, setLoading] = useState<boolean>(false); 
+  const [error, setError] = useState<string | null>(null);
 
 
   const handleCopy = async () => {
@@ -21,11 +21,12 @@ const CopyToTargetDirectory: React.FC<CopyToTargetDirectoryProps> = ({ selectedB
     setError(null);
     setCopyResult(null);
 
+   // Create an updated configuration object with the target directory
     const updatedConfig = {
         targetDirectory: targetDirectory,   
     };
-
-    // קריאה לפונקציה שמעדכנת את ה-config
+    
+    // Update the parent component with the new configuration
     onUpdate("copyToTarget", updatedConfig);
 
     try {

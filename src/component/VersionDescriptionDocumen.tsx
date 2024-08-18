@@ -6,7 +6,7 @@ import { Configuration } from '../types/types';
 interface VersionDescriptionDocumentProps {
   config: Configuration
   onUpdate: (key: keyof Configuration, value: any) => void;
-  updateValidity: (isValid: boolean) => void;
+  updateValidity: (isValid: boolean) => void;// Callback to update the validity of the step
 }
 
 
@@ -20,11 +20,13 @@ const VersionDescriptionDocument: React.FC<VersionDescriptionDocumentProps> = ({
       const vddObj = {   
           versionNumber,
           releaseDate,
-          recentFixes: recentFixes.split('\n') // המרת שורות לרשימה      
+          recentFixes: recentFixes.split('\n')      
       }
-
+   
+    // Update the parent component with the new version description data
     onUpdate("vdd", vddObj);
     
+    // Check if all fields are filled to determine validity
     const isValid = 
       versionNumber.trim() !== '' && 
       releaseDate.trim() !== '' && 

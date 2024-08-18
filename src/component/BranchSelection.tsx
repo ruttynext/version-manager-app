@@ -5,7 +5,7 @@ interface BranchSelectionProps {
   branches: string[], 
   selectedBranch: string; 
   setSelectedBranch: (branch: string) => void;
-  updateValidity: (isValid: boolean) => void;
+  updateValidity: (isValid: boolean) => void;// Callback to update the validity of the step
 
 }
 

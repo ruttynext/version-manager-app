@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import { simulateBuild } from '../services/service';
 
 interface BuildStepProps {
   selectedBranch: string;
-  updateValidity: (isValid: boolean) => void;
+  updateValidity: (isValid: boolean) => void;// Callback to update the validity of the step
 }
 
 const BuildStep: React.FC<BuildStepProps> = ({ selectedBranch, updateValidity }) => {
@@ -20,10 +20,10 @@ const BuildStep: React.FC<BuildStepProps> = ({ selectedBranch, updateValidity })
     try {
       const result = await simulateBuild(selectedBranch);
       setBuildResult(result);
-      updateValidity(true); // הבנייה הצליחה
+      updateValidity(true); 
     } catch (err: any) {
       setError(err.message || 'Build failed');
-      updateValidity(false); // הבנייה נכשלה
+      updateValidity(false); 
     } finally {
       setLoading(false);
     }
