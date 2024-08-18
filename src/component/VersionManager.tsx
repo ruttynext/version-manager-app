@@ -35,26 +35,26 @@ const VersionManager = () => {
   
       getBranches();
     }, []);
-
     
     useEffect(() => {
-
-      // Fetch configuration based on the selected branch
       const fetchConfigAndUpdate = async () => {
         try {
-          const result = await readConfiguration(selectedBranch);
-          setConfig(result);
-    
           if (selectedBranch) {
-            handleUpdateConfig("selectedBranch", selectedBranch);
-          } 
+            const result = await readConfiguration(selectedBranch);
+            setConfig(result);
+    
+            // Avoid calling `handleUpdateConfig` here if it triggers a state update loop
+            // No need to update `selectedBranch` again if it was already set
+             handleUpdateConfig("selectedBranch", selectedBranch); 
+          }
         } catch (error) {
           console.error('Error fetching config:', error);
         }
       };
     
-      fetchConfigAndUpdate(); 
-    }, [selectedBranch]); 
+      fetchConfigAndUpdate();
+    }, [selectedBranch]);
+    
     
     // Update validity of the current step
     const handleUpdateStepValidity = (isValid: boolean) => {
@@ -105,6 +105,7 @@ const VersionManager = () => {
     if (selectedBranch) {
       try {
         await saveConfiguration(selectedBranch, config);
+        console.log(config);
         setCompleted(true);
       } catch (error) {
         setMessage('Failed to save configuration.');

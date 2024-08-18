@@ -13,8 +13,10 @@ interface BranchSelectionProps {
 const BranchSelection: React.FC<BranchSelectionProps> = ({branches, selectedBranch, setSelectedBranch,  updateValidity }) => {
  
   useEffect(() => {
-    updateValidity(!!selectedBranch);
-  }, [selectedBranch, updateValidity]);
+   
+      updateValidity(!!selectedBranch);
+ 
+  }, [selectedBranch]);
 
   return (
     <div>
