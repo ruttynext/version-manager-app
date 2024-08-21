@@ -30,11 +30,13 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
 
     if (username.trim() && password.trim()) {
       setIsAuthenticated(true);
-      setError(''); // נקה את הודעת השגיאה במקרה של התחברות מוצלחת
+      setError(''); 
     } else {
       setError('Username and password cannot be empty');
     }
   };
+
+  const isFormValid = credentials.username.trim() && credentials.password.trim(); 
 
   return (
     <Box className="login-box">
@@ -48,7 +50,8 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
         onChange={handleInputChange}
         fullWidth
         margin="normal"
-        size="small" // Make input fields smaller
+        size="small" 
+        error={credentials.username === ''}
       />
       <TextField
         label="Password"
@@ -58,15 +61,17 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
         onChange={handleInputChange}
         fullWidth
         margin="normal"
-        size="small" // Make input fields smaller
+        size="small" 
+        error={credentials.password === ''}
       />
-      {error && <Typography color="error" variant="body2">{error}</Typography>} {/* Smaller error text */}
+      {error && <Typography color="error" variant="body2">{error}</Typography>}
       <Button
         variant="contained"
         color="primary"
         onClick={handleLogin}
-        sx={{ mt: 2 }} // Add margin-top for spacing
-        size="small" // Make button smaller
+        sx={{ mt: 2 }} 
+        size="small" 
+        disabled={!isFormValid} // Disable button if form is invalid
       >
         Login
       </Button>
